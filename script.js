@@ -1,11 +1,11 @@
 // ============================
 // VARIABLES Y ASSETS
 // ============================
-const texturafondo = "assets/imagenes/connor.webp";
+const texturafondo = "assets/imagenes/Untitled Project (3).jpg";
 const texturapersonaje = "assets/imagenes/connor.webp";
 const texturaenemigo = "assets/imagenes/enemigo.png";
 const texturaprincesa = "assets/emanu.png";
-const texturaplataforma = "assets/imagenes/connor.webp";
+const texturaplataforma = "assets/imagenes/Untitled Project (4).jpg";
 const sonidotodo = "assets/sonidos/samuel.mp3";
 
 const sonido = new Audio(sonidotodo);
@@ -32,11 +32,16 @@ const startButton = document.getElementById('startButton');
 // ============================
 let nivelActual = 1;
 let vidas = 3;
-let x = 100, y = 500, velocidad = 5;
-let saltando = false, saltandoAltura = 0;
-let llaveX = 400, llaveY = 300, princesaX = 700, princesaY = 450;
+let x = 100, y = 500, velocidadX = 0, velocidadY = 0;
+let enSuelo = false;
+let llaveX = 400, llaveY = 300, princesaX = 650, princesaY = 500;
 let enemigoX = 600, enemigoY = 500;
-let plataformas = [{ x: 100, y: 550, width: 200 }, { x: 350, y: 450, width: 150 }, { x: 550, y: 350, width: 150 }];
+let plataformas = [
+    { x: 50, y: 550, width: 200 },
+    { x: 300, y: 450, width: 150 },
+    { x: 500, y: 350, width: 150 },
+    { x: 650, y: 500, width: 100 }
+];
 
 // ============================
 // CARGA DE IMÁGENES
@@ -81,15 +86,40 @@ function dibujar() {
 // FUNCIÓN PARA ACTUALIZAR EL JUEGO
 // ============================
 function actualizar() {
+    velocidadY += 0.5; // Gravedad
+    velocidadX *= 0.9; // Inercia
+    x += velocidadX;
+    y += velocidadY;
+
+    enSuelo = false;
+    plataformas.forEach(p => {
+        if (y + 50 >= p.y && y + 50 <= p.y + 10 && x + 50 > p.x && x < p.x + p.width) {
+            y = p.y - 50;
+            velocidadY = 0;
+            enSuelo = true;
+        }
+    });
+
+    // Limites del canvas
+    if (x < 0) x = 0;
+    if (x + 50 > canvas.width) x = canvas.width - 50;
+    if (y > canvas.height) {
+        vidas--;
+        x = 100; y = 500; velocidadX = 0; velocidadY = 0;
+    }
+
+    // Colisión con enemigo
     if (x + 50 > enemigoX && x - 50 < enemigoX && y + 50 > enemigoY && y - 50 < enemigoY) {
         vidas--;
         x = 100; y = 500;
         reproducirSonido();
     }
+    // Recoger llave
     if (x + 50 > llaveX && x - 50 < llaveX && y + 50 > llaveY && y - 50 < llaveY) {
         llaveX = -100; llaveY = -100;
         reproducirSonido();
     }
+    // Llegar a la princesa
     if (x + 50 > princesaX && x - 50 < princesaX && y + 50 > princesaY && y - 50 < princesaY) {
         nivelActual++;
         x = 100; y = 500;
@@ -105,31 +135,25 @@ function actualizar() {
 // ============================
 // EVENTOS DEL TECLADO
 // ============================
+let teclas = {};
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'ArrowLeft') x -= velocidad;
-    if (event.key === 'ArrowRight') x += velocidad;
-    if (event.key === 'ArrowUp' && !saltando) {
-        saltando = true;
-        let intervaloSalto = setInterval(() => {
-            if (saltandoAltura < 100) {
-                y -= 5;
-                saltandoAltura += 5;
-            } else {
-                clearInterval(intervaloSalto);
-                let intervaloBajada = setInterval(() => {
-                    if (saltandoAltura > 0) {
-                        y += 5;
-                        saltandoAltura -= 5;
-                    } else {
-                        clearInterval(intervaloBajada);
-                        saltando = false;
-                    }
-                }, 20);
-            }
-        }, 20);
+    teclas[event.key] = true;
+});
+document.addEventListener('keyup', function(event) {
+    teclas[event.key] = false;
+});
+
+function manejarMovimiento() {
+    if (teclas['ArrowLeft']) velocidadX = -5;
+    else if (teclas['ArrowRight']) velocidadX = 5;
+    if (teclas['ArrowUp'] && enSuelo) {
+        velocidadY = -12;
+        enSuelo = false;
         reproducirSonido();
     }
-});
+    requestAnimationFrame(manejarMovimiento);
+}
+manejarMovimiento();
 
 // ============================
 // MENÚ PRINCIPAL
