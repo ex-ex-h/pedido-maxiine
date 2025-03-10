@@ -1,93 +1,122 @@
-const canvas = document.getElementById('gameCanvas');
+// ============================
+// VARIABLES Y ASSETS
+// ============================
+const texturatodo = "assets/imagenes/connor.webp";
+const texturaenemigo = "assets/imagenes/enemigo.png";
+const texturaprincesa = "assets/emanu.png";
+const sonidotodo = "assets/sonidos/samuel.mp3";
+
+// Cargar sonido
+const sonido = new Audio(sonidotodo);
+
+function reproducirSonido() {
+    sonido.currentTime = 0;
+    sonido.play();
+}
+
+// ============================
+// CANVAS Y CONTEXTO
+// ============================
+const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const gameSound = document.getElementById('gameSound');
-canvas.width = 800;
-canvas.height = 600;
 
-let levels = [
-    { platforms: [{ x: 0, y: 550, width: 800, height: 50 }, { x: 300, y: 400, width: 200, height: 20 }], key: { x: 500, y: 370, width: 30, height: 30 }, princess: { x: 750, y: 100, width: 40, height: 50 }, enemies: [{ x: 400, y: 500, width: 40, height: 40, speed: 2, direction: 1 }] },
-    { platforms: [{ x: 0, y: 550, width: 800, height: 50 }, { x: 100, y: 400, width: 150, height: 20 }, { x: 400, y: 300, width: 200, height: 20 }], key: { x: 450, y: 270, width: 30, height: 30 }, princess: { x: 750, y: 500, width: 40, height: 50 }, enemies: [{ x: 600, y: 500, width: 40, height: 40, speed: 3, direction: -1 }] },
-    { platforms: [{ x: 0, y: 550, width: 800, height: 50 }], key: { x: 400, y: 500, width: 30, height: 30 }, princess: { x: 750, y: 500, width: 40, height: 50 }, enemies: [{ x: 300, y: 500, width: 40, height: 40, speed: 4, direction: 1 }] }
-];
-let currentLevel = 0;
+// ============================
+// VARIABLES DEL JUEGO
+// ============================
+let nivelActual = 1;
+let vidas = 3;
+let x = 100, y = 100, velocidad = 5;
+let saltando = false;
+let llaveX = 0, llaveY = 0, princesaX = 0, princesaY = 0;
+let enemigoX = 0, enemigoY = 0;
+let plataformas = [], nubes = [], arbustos = [];
 
-let player = { x: 50, y: 500, width: 50, height: 50, speed: 5, velY: 0, jumping: false, hasKey: false, lives: 3 };
-let gravity = 0.5;
-let keys = {};
-let gameStarted = false;
+// ============================
+// CARGA DE IMÁGENES
+// ============================
+const fondo = new Image();
+fondo.src = texturatodo;
 
-document.addEventListener('keydown', (e) => keys[e.key] = true);
-document.addEventListener('keyup', (e) => keys[e.key] = false);
+const principal = new Image();
+principal.src = texturatodo;
 
-function startGame() {
-    document.getElementById('menu').style.display = 'none';
-    canvas.style.display = 'block';
-    gameStarted = true;
-    gameLoop();
+const llave = new Image();
+llave.src = texturatodo;
+
+const princesa = new Image();
+princesa.src = texturaprincesa;
+
+const enemigo = new Image();
+enemigo.src = texturaenemigo;
+
+const plataforma = new Image();
+plataforma.src = texturatodo;
+
+const nube = new Image();
+nube.src = texturatodo;
+
+const arbusto = new Image();
+arbusto.src = texturatodo;
+
+// ============================
+// FUNCIÓN PARA DIBUJAR EL JUEGO
+// ============================
+function dibujar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(fondo, 0, 0);
+    ctx.drawImage(principal, x, y);
+    ctx.drawImage(princesa, princesaX, princesaY);
+    ctx.drawImage(llave, llaveX, llaveY);
+    ctx.drawImage(enemigo, enemigoX, enemigoY);
+    plataformas.forEach(p => ctx.drawImage(plataforma, p.x, p.y));
+    nubes.forEach(n => ctx.drawImage(nube, n.x, n.y));
+    arbustos.forEach(a => ctx.drawImage(arbusto, a.x, a.y));
+    ctx.fillText(`Vidas: ${vidas}`, 10, 10);
+    ctx.fillText(`Nivel: ${nivelActual}`, 10, 40);
+    requestAnimationFrame(dibujar);
 }
 
-function playSound() {
-    gameSound.currentTime = 0;
-    gameSound.play();
-}
-
-function update() {
-    if (keys['a']) player.x -= player.speed;
-    if (keys['d']) player.x += player.speed;
-    if (keys['w'] && !player.jumping) {
-        player.velY = -10;
-        player.jumping = true;
-        playSound();
+// ============================
+// FUNCIÓN PARA ACTUALIZAR EL JUEGO
+// ============================
+function actualizar() {
+    if (x + 50 > enemigoX && x - 50 < enemigoX && y + 50 > enemigoY && y - 50 < enemigoY) {
+        vidas--;
+        x = 100; y = 100;
+        reproducirSonido();
     }
-    player.y += player.velY;
-    player.velY += gravity;
-    let level = levels[currentLevel];
-    
-    level.platforms.forEach(p => {
-        if (player.y + player.height >= p.y && player.y + player.height - player.velY < p.y && player.x < p.x + p.width && player.x + player.width > p.x) {
-            player.y = p.y - player.height;
-            player.jumping = false;
-            player.velY = 0;
-        }
-    });
-    
-    level.enemies.forEach(enemy => {
-        enemy.x += enemy.speed * enemy.direction;
-        if (enemy.x <= 0 || enemy.x + enemy.width >= canvas.width) {
-            enemy.direction *= -1;
-        }
-        if (player.x < enemy.x + enemy.width && player.x + player.width > enemy.x && player.y < enemy.y + enemy.height && player.y + player.height > enemy.y) {
-            player.lives--;
-            player.x -= 50;
-            player.y -= 20;
-            if (player.lives <= 0) {
-                alert('Moriste');
-                location.reload();
-            }
-        }
-    });
-    
-    if (!player.hasKey && player.x < level.key.x + level.key.width && player.x + player.width > level.key.x && player.y < level.key.y + level.key.height && player.y + player.height > level.key.y) {
-        player.hasKey = true;
-        playSound();
+    if (x + 50 > llaveX && x - 50 < llaveX && y + 50 > llaveY && y - 50 < llaveY) {
+        llaveX = 0; llaveY = 0;
+        reproducirSonido();
     }
-    
-    if (player.hasKey && player.x < level.princess.x + level.princess.width && player.x + player.width > level.princess.x && player.y < level.princess.y + level.princess.height && player.y + player.height > level.princess.y) {
-        nextLevel();
-        playSound();
+    if (x + 50 > princesaX && x - 50 < princesaX && y + 50 > princesaY && y - 50 < princesaY) {
+        nivelActual++;
+        x = 100; y = 100;
+        reproducirSonido();
     }
-}
-
-function nextLevel() {
-    currentLevel++;
-    if (currentLevel >= levels.length) {
-        alert('¡Ganaste!');
+    if (vidas === 0) {
+        alert('Game Over!');
         location.reload();
     }
-    player.x = 50;
-    player.y = 500;
-    player.hasKey = false;
+    requestAnimationFrame(actualizar);
 }
 
-gameLoop();
+// ============================
+// EVENTOS DEL TECLADO
+// ============================
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowLeft') x -= velocidad;
+    if (event.key === 'ArrowRight') x += velocidad;
+    if (event.key === 'ArrowUp') {
+        saltando = true;
+        reproducirSonido();
+    }
+});
 
+// ============================
+// INICIALIZAR JUEGO
+// ============================
+fondo.onload = () => {
+    actualizar();
+    dibujar();
+};
