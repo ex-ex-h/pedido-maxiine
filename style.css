@@ -23,5 +23,5 @@ button {
 }
 canvas {
     display: block;
-    background: url('textures.png') repeat;
+    background: url('assets/imagenes/connor.webp') repeat;
 }
