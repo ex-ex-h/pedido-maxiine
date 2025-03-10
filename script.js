@@ -164,5 +164,21 @@ startButton.addEventListener('click', function() {
     fondo.onload = () => {
         actualizar();
         dibujar();
+document.addEventListener("DOMContentLoaded", function() {
+    const menu = document.getElementById('menu');
+    const startButton = document.getElementById('startButton');
+    
+    if (startButton) {
+        startButton.addEventListener('click', function() {
+            menu.style.display = "none";
+            canvas.style.display = "block";
+            actualizar();
+            dibujar();
+        });
+    } else {
+        console.error("Error: No se encontró el botón de inicio en el DOM.");
+    }
+});
+
     };
 });
