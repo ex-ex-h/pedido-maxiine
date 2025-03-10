@@ -11,7 +11,7 @@ image.src = "assets/imagenes/connor.webp"; // Reemplaza con tu URL
 const enemyImage = new Image();
 enemyImage.src = "assets/imagenes/enemigo.png";
 const goalImage = new Image();
-goalImage.src = "URL_META";
+goalImage.src = "assets/emanu.png";
 
 // Cargar sonido
 const sound = new Audio("assets/sonidos/samuel.mp3");
