@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego Cursed</title>
+    <title>Plataformero</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <div id="menu">
+        <h1>Plataformero</h1>
+        <button onclick="startGame()">Jugar</button>
+    </div>
+    <canvas id="gameCanvas" style="display:none;"></canvas>
+    <audio id="gameSound" src="sound.mp3"></audio>
     <script src="script.js"></script>
 </body>
 </html>
