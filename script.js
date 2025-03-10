@@ -1,11 +1,11 @@
 // ============================
 // VARIABLES Y ASSETS
 // ============================
-const texturafondo = "assets/imagenes/Untitled Project (3).jpg";
+const texturafondo = "assets/imagenes/azul.jpg";
 const texturapersonaje = "assets/imagenes/connor.webp";
 const texturaenemigo = "assets/imagenes/enemigo.png";
 const texturaprincesa = "assets/emanu.png";
-const texturaplataforma = "assets/imagenes/Untitled Project (4).jpg";
+const texturaplataforma = "assets/imagenes/velde.jpg";
 const sonidotodo = "assets/sonidos/samuel.mp3";
 
 const sonido = new Audio(sonidotodo);
