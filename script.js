@@ -5,13 +5,13 @@ canvas.width = 800;
 canvas.height = 600;
 
 let levels = [
-    { platforms: [{ x: 0, y: 550, width: 800, height: 50 }, { x: 300, y: 400, width: 200, height: 20 }], key: { x: 500, y: 370, width: 30, height: 30 }, princess: { x: 750, y: 500, width: 40, height: 50 }, enemies: [{ x: 400, y: 500, width: 40, height: 40, speed: 2, direction: 1 }] },
+    { platforms: [{ x: 0, y: 550, width: 800, height: 50 }, { x: 300, y: 400, width: 200, height: 20 }], key: { x: 500, y: 370, width: 30, height: 30 }, princess: { x: 750, y: 100, width: 40, height: 50 }, enemies: [{ x: 400, y: 500, width: 40, height: 40, speed: 2, direction: 1 }] },
     { platforms: [{ x: 0, y: 550, width: 800, height: 50 }, { x: 100, y: 400, width: 150, height: 20 }, { x: 400, y: 300, width: 200, height: 20 }], key: { x: 450, y: 270, width: 30, height: 30 }, princess: { x: 750, y: 500, width: 40, height: 50 }, enemies: [{ x: 600, y: 500, width: 40, height: 40, speed: 3, direction: -1 }] },
-    { platforms: [{ x: 0, y: 550, width: 800, height: 50 }, { x: 200, y: 350, width: 150, height: 20 }, { x: 500, y: 250, width: 150, height: 20 }], key: { x: 550, y: 220, width: 30, height: 30 }, princess: { x: 750, y: 500, width: 40, height: 50 }, enemies: [{ x: 300, y: 500, width: 40, height: 40, speed: 4, direction: 1 }] }
+    { platforms: [{ x: 0, y: 550, width: 800, height: 50 }], key: { x: 400, y: 500, width: 30, height: 30 }, princess: { x: 750, y: 500, width: 40, height: 50 }, enemies: [{ x: 300, y: 500, width: 40, height: 40, speed: 4, direction: 1 }] }
 ];
 let currentLevel = 0;
 
-let player = { x: 50, y: 500, width: 50, height: 50, speed: 5, velY: 0, jumping: false, hasKey: false };
+let player = { x: 50, y: 500, width: 50, height: 50, speed: 5, velY: 0, jumping: false, hasKey: false, lives: 3 };
 let gravity = 0.5;
 let keys = {};
 let gameStarted = false;
@@ -51,6 +51,22 @@ function update() {
         }
     });
     
+    level.enemies.forEach(enemy => {
+        enemy.x += enemy.speed * enemy.direction;
+        if (enemy.x <= 0 || enemy.x + enemy.width >= canvas.width) {
+            enemy.direction *= -1;
+        }
+        if (player.x < enemy.x + enemy.width && player.x + player.width > enemy.x && player.y < enemy.y + enemy.height && player.y + player.height > enemy.y) {
+            player.lives--;
+            player.x -= 50;
+            player.y -= 20;
+            if (player.lives <= 0) {
+                alert('Moriste');
+                location.reload();
+            }
+        }
+    });
+    
     if (!player.hasKey && player.x < level.key.x + level.key.width && player.x + player.width > level.key.x && player.y < level.key.y + level.key.height && player.y + player.height > level.key.y) {
         player.hasKey = true;
         playSound();
@@ -66,7 +82,7 @@ function nextLevel() {
     currentLevel++;
     if (currentLevel >= levels.length) {
         alert('¡Ganaste!');
-        currentLevel = 0;
+        location.reload();
     }
     player.x = 50;
     player.y = 500;
@@ -74,3 +90,4 @@ function nextLevel() {
 }
 
 gameLoop();
+
