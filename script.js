@@ -20,17 +20,23 @@ function reproducirSonido() {
 // ============================
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+canvas.width = 800;
+canvas.height = 600;
+canvas.style.display = "none"; // Ocultar canvas hasta que inicie el juego
+
+const menu = document.getElementById('menu');
+const startButton = document.getElementById('startButton');
 
 // ============================
 // VARIABLES DEL JUEGO
 // ============================
 let nivelActual = 1;
 let vidas = 3;
-let x = 100, y = 450, velocidad = 5;
-let saltando = false, saltandoAltura = 0, saltandoVelocidad = 0;
+let x = 100, y = 500, velocidad = 5;
+let saltando = false, saltandoAltura = 0;
 let llaveX = 400, llaveY = 300, princesaX = 700, princesaY = 450;
-let enemigoX = 600, enemigoY = 450;
-let plataformas = [{ x: 200, y: 500 }, { x: 400, y: 400 }, { x: 600, y: 300 }];
+let enemigoX = 600, enemigoY = 500;
+let plataformas = [{ x: 100, y: 550, width: 200 }, { x: 350, y: 450, width: 150 }, { x: 550, y: 350, width: 150 }];
 
 // ============================
 // CARGA DE IMÁGENES
@@ -59,11 +65,13 @@ plataforma.src = texturaplataforma;
 function dibujar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(fondo, 0, 0, canvas.width, canvas.height);
-    plataformas.forEach(p => ctx.drawImage(plataforma, p.x, p.y, 100, 20));
+    plataformas.forEach(p => ctx.drawImage(plataforma, p.x, p.y, p.width, 20));
     ctx.drawImage(personaje, x, y, 50, 50);
     ctx.drawImage(princesa, princesaX, princesaY, 50, 50);
     ctx.drawImage(llave, llaveX, llaveY, 30, 30);
     ctx.drawImage(enemigo, enemigoX, enemigoY, 50, 50);
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
     ctx.fillText(`Vidas: ${vidas}`, 10, 20);
     ctx.fillText(`Nivel: ${nivelActual}`, 10, 40);
     requestAnimationFrame(dibujar);
@@ -75,7 +83,7 @@ function dibujar() {
 function actualizar() {
     if (x + 50 > enemigoX && x - 50 < enemigoX && y + 50 > enemigoY && y - 50 < enemigoY) {
         vidas--;
-        x = 100; y = 450;
+        x = 100; y = 500;
         reproducirSonido();
     }
     if (x + 50 > llaveX && x - 50 < llaveX && y + 50 > llaveY && y - 50 < llaveY) {
@@ -84,7 +92,7 @@ function actualizar() {
     }
     if (x + 50 > princesaX && x - 50 < princesaX && y + 50 > princesaY && y - 50 < princesaY) {
         nivelActual++;
-        x = 100; y = 450;
+        x = 100; y = 500;
         reproducirSonido();
     }
     if (vidas === 0) {
@@ -124,10 +132,13 @@ document.addEventListener('keydown', function(event) {
 });
 
 // ============================
-// INICIALIZAR JUEGO
+// MENÚ PRINCIPAL
 // ============================
-fondo.onload = () => {
-    actualizar();
-    dibujar();
-};
-
+startButton.addEventListener('click', function() {
+    menu.style.display = "none";
+    canvas.style.display = "block";
+    fondo.onload = () => {
+        actualizar();
+        dibujar();
+    };
+});
