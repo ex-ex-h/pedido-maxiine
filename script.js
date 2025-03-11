@@ -111,8 +111,6 @@ function moverPersonaje() {
     }
 }
 
-}
-
 // ============================
 // FUNCIÓN PARA DIBUJAR EL JUEGO
 // ============================
