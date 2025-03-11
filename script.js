@@ -166,12 +166,10 @@ function verificarColisiones() {
     }
 }
 
-
+function actualizar() {
 verificarColisiones();
 
     requestAnimationFrame(actualizar);
-}
-function actualizar() {
     moverPersonaje();
     velocidadY += 0.5;
     x += velocidadX;
