@@ -7,7 +7,7 @@ const texturaenemigo = "assets/imagenes/enemigo.png";
 const texturaprincesa = "assets/emanu.png";
 const texturaplataforma = "assets/imagenes/velde.jpg";
 const texturajaula = "assets/imagenes/nig.jpg";
-const texturallaveSrc = "assets/imagenes/dorao.jpg";
+const texturallave = "assets/imagenes/dorao.jpg";
 const sonidotodo = "assets/sonidos/samuel.mp3";
 
 const sonido = new Audio(sonidotodo);
