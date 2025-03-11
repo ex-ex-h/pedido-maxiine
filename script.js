@@ -86,6 +86,22 @@ plataforma.src = texturaplataforma;
 
 const jaulaImg = new Image();
 jaulaImg.src = texturajaula;
+// ============================
+// MOVIMIENTO DEL PERSONAJE
+// ============================
+document.addEventListener('keydown', (event) => {
+    teclas[event.key] = true;
+});
+
+document.addEventListener('keyup', (event) => {
+    teclas[event.key] = false;
+});
+
+function moverPersonaje() {
+    if (teclas['a']) velocidadX = -5;
+    if (teclas['d']) velocidadX = 5;
+    if (teclas['w'] && enSuelo) velocidadY = -10;
+}
 
 // ============================
 // FUNCIÓN PARA DIBUJAR EL JUEGO
