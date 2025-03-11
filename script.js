@@ -1,13 +1,15 @@
 // ============================
 // VARIABLES Y ASSETS
 // ============================
-const texturafondo = "assets/imagenes/azul.jpg"; // Fondo azul corregido
+const texturafondo = "assets/imagenes/azul.jpg";
 const texturapersonaje = "assets/imagenes/connor.webp";
 const texturaenemigo = "assets/imagenes/enemigo.png";
 const texturaprincesa = "assets/emanu.png";
 const texturaplataforma = "assets/imagenes/velde.jpg";
 const texturajaula = "assets/imagenes/nig.jpg";
+const texturallaveSrc = "assets/imagenes/dorao.jpg";
 const sonidotodo = "assets/sonidos/samuel.mp3";
+
 const sonido = new Audio(sonidotodo);
 
 function reproducirSonido() {
@@ -29,7 +31,7 @@ const startButton = document.getElementById('startButton');
 // ============================
 // VARIABLES DEL JUEGO
 // ============================
-let nivelActual, vidas, x, y, velocidadX, velocidadY, enSuelo, llaveX, llaveY, princesaX, princesaY, enemigoX, enemigoY, enemigoVelocidadX, enemigoDireccion;
+let nivelActual, vidas, x, y, velocidadX, velocidadY, enSuelo, llaveX, llaveY, princesaX, princesaY, enemigoX, enemigoY, enemigoVelocidadX, enemigoDireccion, llaveFrame;
 let plataformas, jaula;
 let juegoEnMarcha = false;
 let teclas = {};
@@ -39,14 +41,14 @@ function reiniciarJuego() {
     vidas = 3;
     x = 100; y = 500; velocidadX = 0; velocidadY = 0;
     enSuelo = false;
-    llaveX = 400; llaveY = 300;
+    llaveX = 400; llaveY = 300; llaveFrame = 0;
     princesaX = 650; princesaY = 450;
-    enemigoX = 300; enemigoY = 500;
+    enemigoX = 400; enemigoY = 500;
     enemigoVelocidadX = 2;
     enemigoDireccion = 1;
     
     plataformas = [
-        { x: 0, y: 580, width: 800 }, // Suelo principal
+        { x: 0, y: 570, width: 800 },
         { x: 50, y: 550, width: 200 },
         { x: 300, y: 450, width: 150 },
         { x: 500, y: 350, width: 150 },
@@ -72,8 +74,7 @@ fondo.src = texturafondo;
 const personaje = new Image();
 personaje.src = texturapersonaje;
 
-const llave = new Image();
-llave.src = texturallave;
+const llave = texturallaveSrc.map(src => { let img = new Image(); img.src = src; return img; });
 
 const princesa = new Image();
 princesa.src = texturaprincesa;
@@ -114,7 +115,7 @@ function dibujar() {
     plataformas.forEach(p => ctx.drawImage(plataforma, p.x, p.y, p.width, 20));
     ctx.drawImage(personaje, x, y, 50, 50);
     ctx.drawImage(princesa, princesaX, princesaY, 50, 50);
-    ctx.drawImage(llave, llaveX, llaveY, 30, 30);
+    ctx.drawImage(llave[llaveFrame], llaveX, llaveY, 30, 30);
     ctx.drawImage(enemigo, enemigoX, enemigoY, 50, 50);
     jaula.forEach(j => ctx.drawImage(jaulaImg, j.x, j.y, j.width, j.height));
     
@@ -130,7 +131,7 @@ function dibujar() {
 // ============================
 function actualizar() {
     moverPersonaje();
-    velocidadY += 0.5; // Gravedad
+    velocidadY += 0.5;
     x += velocidadX;
     y += velocidadY;
 
@@ -144,28 +145,13 @@ function actualizar() {
     });
 
     enemigoX += enemigoVelocidadX * enemigoDireccion;
-    if (enemigoX <= 200 || enemigoX >= 600) {
-        enemigoDireccion *= -1;
-    }
+    if (enemigoX <= 250 || enemigoX >= 550) enemigoDireccion *= -1;
 
-    if (x + 50 > enemigoX && x < enemigoX + 50 && y + 50 > enemigoY && y < enemigoY + 50) {
-        reproducirSonido();
-        vidas--;
-    }
+    llaveFrame = (llaveFrame + 1) % llave.length;
 
-    if (vidas === 0) {
-        alert('Game Over!');
-        juegoEnMarcha = false;
-        menu.style.display = "block";
-        canvas.style.display = "none";
-        return;
-    }
     requestAnimationFrame(actualizar);
 }
 
-// ============================
-// MENÚ PRINCIPAL
-// ============================
 startButton.addEventListener('click', function() {
     if (!juegoEnMarcha) {
         menu.style.display = "none";
