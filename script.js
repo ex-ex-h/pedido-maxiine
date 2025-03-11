@@ -74,7 +74,7 @@ fondo.src = texturafondo;
 const personaje = new Image();
 personaje.src = texturapersonaje;
 
-const llave = texturallaveSrc.map(src => { let img = new Image(); img.src = src; return img; });
+const llave = texturallaveSrc;
 
 const princesa = new Image();
 princesa.src = texturaprincesa;
