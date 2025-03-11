@@ -32,6 +32,7 @@ const startButton = document.getElementById('startButton');
 // ============================
 let nivelActual, vidas, x, y, velocidadX, velocidadY, enSuelo, llaveX, llaveY, princesaX, princesaY, enemigoX, enemigoY, enemigoVelocidadX, enemigoDireccion;
 let plataformas, jaula;
+let juegoEnMarcha = false;
 
 function reiniciarJuego() {
     nivelActual = 1;
@@ -45,6 +46,7 @@ function reiniciarJuego() {
     enemigoDireccion = 1;
     
     plataformas = [
+        { x: 0, y: 580, width: 800 }, // Suelo principal
         { x: 50, y: 550, width: 200 },
         { x: 300, y: 450, width: 150 },
         { x: 500, y: 350, width: 150 },
@@ -55,6 +57,7 @@ function reiniciarJuego() {
         { x: princesaX - 10, y: princesaY - 10, width: 70, height: 10 },
         { x: princesaX - 10, y: princesaY - 10, width: 10, height: 60 },
         { x: princesaX + 50, y: princesaY - 10, width: 10, height: 60 },
+        { x: princesaX - 10, y: princesaY + 50, width: 70, height: 10 }
     ];
 }
 
@@ -70,7 +73,7 @@ const personaje = new Image();
 personaje.src = texturapersonaje;
 
 const llave = new Image();
-llave.src = texturapersonaje;
+llave.src = texturallave;
 
 const princesa = new Image();
 princesa.src = texturaprincesa;
@@ -132,41 +135,16 @@ function actualizar() {
 
     // Movimiento del enemigo en zigzag
     enemigoX += enemigoVelocidadX * enemigoDireccion;
-    if (enemigoX <= 500 || enemigoX >= 700) {
+    if (enemigoX <= 300 || enemigoX >= 700) {
         enemigoDireccion *= -1;
     }
 
-    // Limites del canvas
-    if (x < 0) x = 0;
-    if (x + 50 > canvas.width) x = canvas.width - 50;
-    if (y > canvas.height) {
-        vidas--;
-        reiniciarJuego();
-    }
-
-    // Colisión con enemigo
-    if (x + 50 > enemigoX && x - 50 < enemigoX && y + 50 > enemigoY && y - 50 < enemigoY) {
-        vidas--;
-        reiniciarJuego();
-        reproducirSonido();
-    }
-    
-    // Recoger llave
-    if (x + 50 > llaveX && x - 50 < llaveX && y + 50 > llaveY && y - 50 < llaveY) {
-        llaveX = -100; llaveY = -100;
-        reproducirSonido();
-    }
-    
-    // Llegar a la princesa
-    if (x + 50 > princesaX && x - 50 < princesaX && y + 50 > princesaY && y - 50 < princesaY && llaveX === -100) {
-        nivelActual++;
-        reiniciarJuego();
-        reproducirSonido();
-    }
-    
     if (vidas === 0) {
         alert('Game Over!');
-        reiniciarJuego();
+        juegoEnMarcha = false;
+        menu.style.display = "block";
+        canvas.style.display = "none";
+        return;
     }
     requestAnimationFrame(actualizar);
 }
@@ -175,9 +153,12 @@ function actualizar() {
 // MENÚ PRINCIPAL
 // ============================
 startButton.addEventListener('click', function() {
-    menu.style.display = "none";
-    canvas.style.display = "block";
-    reiniciarJuego();
-    actualizar();
-    dibujar();
+    if (!juegoEnMarcha) {
+        menu.style.display = "none";
+        canvas.style.display = "block";
+        reiniciarJuego();
+        juegoEnMarcha = true;
+        actualizar();
+        dibujar();
+    }
 });
