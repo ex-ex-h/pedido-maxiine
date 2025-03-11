@@ -8,7 +8,6 @@ const texturaprincesa = "assets/emanu.png";
 const texturaplataforma = "assets/imagenes/velde.jpg";
 const texturajaula = "assets/imagenes/nig.jpg";
 const sonidotodo = "assets/sonidos/samuel.mp3";
-
 const sonido = new Audio(sonidotodo);
 
 function reproducirSonido() {
@@ -33,6 +32,7 @@ const startButton = document.getElementById('startButton');
 let nivelActual, vidas, x, y, velocidadX, velocidadY, enSuelo, llaveX, llaveY, princesaX, princesaY, enemigoX, enemigoY, enemigoVelocidadX, enemigoDireccion;
 let plataformas, jaula;
 let juegoEnMarcha = false;
+let teclas = {};
 
 function reiniciarJuego() {
     nivelActual = 1;
@@ -41,7 +41,7 @@ function reiniciarJuego() {
     enSuelo = false;
     llaveX = 400; llaveY = 300;
     princesaX = 650; princesaY = 500;
-    enemigoX = 600; enemigoY = 500;
+    enemigoX = 500; enemigoY = 500;
     enemigoVelocidadX = 2;
     enemigoDireccion = 1;
     
@@ -86,6 +86,7 @@ plataforma.src = texturaplataforma;
 
 const jaulaImg = new Image();
 jaulaImg.src = texturajaula;
+
 // ============================
 // MOVIMIENTO DEL PERSONAJE
 // ============================
@@ -135,6 +136,7 @@ function dibujar() {
 // FUNCIÓN PARA ACTUALIZAR EL JUEGO
 // ============================
 function actualizar() {
+    moverPersonaje();
     velocidadY += 0.5; // Gravedad
     velocidadX *= 0.9; // Inercia
     x += velocidadX;
@@ -153,6 +155,12 @@ function actualizar() {
     enemigoX += enemigoVelocidadX * enemigoDireccion;
     if (enemigoX <= 300 || enemigoX >= 700) {
         enemigoDireccion *= -1;
+    }
+
+    // Detección de colisión con el enemigo
+    if (x + 50 > enemigoX && x < enemigoX + 50 && y + 50 > enemigoY && y < enemigoY + 50) {
+        reproducirSonido();
+        vidas--;
     }
 
     if (vidas === 0) {
