@@ -41,7 +41,7 @@ function reiniciarJuego() {
     enSuelo = false;
     llaveX = 400; llaveY = 300;
     princesaX = 650; princesaY = 500;
-    enemigoX = 500; enemigoY = 500;
+    enemigoX = 400; enemigoY = 500;
     enemigoVelocidadX = 2;
     enemigoDireccion = 1;
     
@@ -91,17 +91,18 @@ jaulaImg.src = texturajaula;
 // MOVIMIENTO DEL PERSONAJE
 // ============================
 document.addEventListener('keydown', (event) => {
-    teclas[event.key] = true;
+    teclas[event.key.toLowerCase()] = true;
 });
 
 document.addEventListener('keyup', (event) => {
-    teclas[event.key] = false;
+    teclas[event.key.toLowerCase()] = false;
 });
 
 function moverPersonaje() {
-    if (teclas['a']) velocidadX = -5;
-    if (teclas['d']) velocidadX = 5;
-    if (teclas['w'] && enSuelo) velocidadY = -10;
+    velocidadX = 0;
+    if (teclas['a'] || teclas['arrowleft']) velocidadX = -5;
+    if (teclas['d'] || teclas['arrowright']) velocidadX = 5;
+    if ((teclas['w'] || teclas['arrowup']) && enSuelo) velocidadY = -10;
 }
 
 // ============================
@@ -109,20 +110,12 @@ function moverPersonaje() {
 // ============================
 function dibujar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (fondo.complete) {
-        ctx.drawImage(fondo, 0, 0, canvas.width, canvas.height);
-    } else {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    
+    ctx.drawImage(fondo, 0, 0, canvas.width, canvas.height);
     plataformas.forEach(p => ctx.drawImage(plataforma, p.x, p.y, p.width, 20));
     ctx.drawImage(personaje, x, y, 50, 50);
     ctx.drawImage(princesa, princesaX, princesaY, 50, 50);
     ctx.drawImage(llave, llaveX, llaveY, 30, 30);
     ctx.drawImage(enemigo, enemigoX, enemigoY, 50, 50);
-    
-    // Dibujar jaula
     jaula.forEach(j => ctx.drawImage(jaulaImg, j.x, j.y, j.width, j.height));
     
     ctx.fillStyle = "black";
@@ -138,7 +131,6 @@ function dibujar() {
 function actualizar() {
     moverPersonaje();
     velocidadY += 0.5; // Gravedad
-    velocidadX *= 0.9; // Inercia
     x += velocidadX;
     y += velocidadY;
 
@@ -151,13 +143,11 @@ function actualizar() {
         }
     });
 
-    // Movimiento del enemigo en zigzag
     enemigoX += enemigoVelocidadX * enemigoDireccion;
-    if (enemigoX <= 300 || enemigoX >= 700) {
+    if (enemigoX <= 200 || enemigoX >= 600) {
         enemigoDireccion *= -1;
     }
 
-    // Detección de colisión con el enemigo
     if (x + 50 > enemigoX && x < enemigoX + 50 && y + 50 > enemigoY && y < enemigoY + 50) {
         reproducirSonido();
         vidas--;
