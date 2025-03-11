@@ -31,7 +31,7 @@ const startButton = document.getElementById('startButton');
 // ============================
 // VARIABLES DEL JUEGO
 // ============================
-let nivelActual, vidas, x, y, velocidadX, velocidadY, enSuelo, llaveX, llaveY, princesaX, princesaY, enemigoX, enemigoY, enemigoVelocidadX, enemigoDireccion, llaveFrame;
+let nivelActual, vidas, x, y, velocidadX, velocidadY, enSuelo, llaveX, llaveY, princesaX, princesaY, enemigoX, enemigoY, enemigoVelocidadX, enemigoDireccion;
 let plataformas, jaula;
 let juegoEnMarcha = false;
 let teclas = {};
@@ -41,7 +41,7 @@ function reiniciarJuego() {
     vidas = 3;
     x = 100; y = 500; velocidadX = 0; velocidadY = 0;
     enSuelo = false;
-    llaveX = 400; llaveY = 300; llaveFrame = 0;
+    llaveX = 400; llaveY = 300;
     princesaX = 650; princesaY = 450;
     enemigoX = 400; enemigoY = 500;
     enemigoVelocidadX = 2;
@@ -74,7 +74,8 @@ fondo.src = texturafondo;
 const personaje = new Image();
 personaje.src = texturapersonaje;
 
-const llave = texturallaveSrc;
+const llave = new Image();
+llave.src = texturallave;
 
 const princesa = new Image();
 princesa.src = texturaprincesa;
@@ -115,7 +116,7 @@ function dibujar() {
     plataformas.forEach(p => ctx.drawImage(plataforma, p.x, p.y, p.width, 20));
     ctx.drawImage(personaje, x, y, 50, 50);
     ctx.drawImage(princesa, princesaX, princesaY, 50, 50);
-    ctx.drawImage(llave[llaveFrame], llaveX, llaveY, 30, 30);
+    ctx.drawImage(llave, llaveX, llaveY, 30, 30);
     ctx.drawImage(enemigo, enemigoX, enemigoY, 50, 50);
     jaula.forEach(j => ctx.drawImage(jaulaImg, j.x, j.y, j.width, j.height));
     
@@ -146,8 +147,6 @@ function actualizar() {
 
     enemigoX += enemigoVelocidadX * enemigoDireccion;
     if (enemigoX <= 250 || enemigoX >= 550) enemigoDireccion *= -1;
-
-    llaveFrame = (llaveFrame + 1) % llave.length;
 
     requestAnimationFrame(actualizar);
 }
