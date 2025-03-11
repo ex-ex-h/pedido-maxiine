@@ -40,8 +40,8 @@ function reiniciarJuego() {
     x = 100; y = 500; velocidadX = 0; velocidadY = 0;
     enSuelo = false;
     llaveX = 400; llaveY = 300;
-    princesaX = 650; princesaY = 500;
-    enemigoX = 400; enemigoY = 500;
+    princesaX = 650; princesaY = 450;
+    enemigoX = 300; enemigoY = 500;
     enemigoVelocidadX = 2;
     enemigoDireccion = 1;
     
