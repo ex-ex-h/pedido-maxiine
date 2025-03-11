@@ -1,11 +1,12 @@
 // ============================
 // VARIABLES Y ASSETS
 // ============================
-const texturafondo = "assets/imagenes/azul.jpg";
+const texturafondo = "assets/imagenes/azul.jpg"; // Fondo azul corregido
 const texturapersonaje = "assets/imagenes/connor.webp";
 const texturaenemigo = "assets/imagenes/enemigo.png";
 const texturaprincesa = "assets/emanu.png";
 const texturaplataforma = "assets/imagenes/velde.jpg";
+const texturajaula = "assets/imagenes/nig.jpg";
 const sonidotodo = "assets/sonidos/samuel.mp3";
 
 const sonido = new Audio(sonidotodo);
@@ -22,7 +23,6 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 600;
-canvas.style.display = "none"; // Ocultar canvas hasta que inicie el juego
 
 const menu = document.getElementById('menu');
 const startButton = document.getElementById('startButton');
@@ -30,18 +30,35 @@ const startButton = document.getElementById('startButton');
 // ============================
 // VARIABLES DEL JUEGO
 // ============================
-let nivelActual = 1;
-let vidas = 3;
-let x = 100, y = 500, velocidadX = 0, velocidadY = 0;
-let enSuelo = false;
-let llaveX = 400, llaveY = 300, princesaX = 650, princesaY = 500;
-let enemigoX = 600, enemigoY = 500;
-let plataformas = [
-    { x: 50, y: 550, width: 200 },
-    { x: 300, y: 450, width: 150 },
-    { x: 500, y: 350, width: 150 },
-    { x: 650, y: 500, width: 100 }
-];
+let nivelActual, vidas, x, y, velocidadX, velocidadY, enSuelo, llaveX, llaveY, princesaX, princesaY, enemigoX, enemigoY, enemigoVelocidadX, enemigoDireccion;
+let plataformas, jaula;
+
+function reiniciarJuego() {
+    nivelActual = 1;
+    vidas = 3;
+    x = 100; y = 500; velocidadX = 0; velocidadY = 0;
+    enSuelo = false;
+    llaveX = 400; llaveY = 300;
+    princesaX = 650; princesaY = 500;
+    enemigoX = 600; enemigoY = 500;
+    enemigoVelocidadX = 2;
+    enemigoDireccion = 1;
+    
+    plataformas = [
+        { x: 50, y: 550, width: 200 },
+        { x: 300, y: 450, width: 150 },
+        { x: 500, y: 350, width: 150 },
+        { x: 650, y: 500, width: 100 }
+    ];
+    
+    jaula = [
+        { x: princesaX - 10, y: princesaY - 10, width: 70, height: 10 },
+        { x: princesaX - 10, y: princesaY - 10, width: 10, height: 60 },
+        { x: princesaX + 50, y: princesaY - 10, width: 10, height: 60 },
+    ];
+}
+
+reiniciarJuego();
 
 // ============================
 // CARGA DE IMÁGENES
@@ -64,17 +81,30 @@ enemigo.src = texturaenemigo;
 const plataforma = new Image();
 plataforma.src = texturaplataforma;
 
+const jaulaImg = new Image();
+jaulaImg.src = texturajaula;
+
 // ============================
 // FUNCIÓN PARA DIBUJAR EL JUEGO
 // ============================
 function dibujar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(fondo, 0, 0, canvas.width, canvas.height);
+    if (fondo.complete) {
+        ctx.drawImage(fondo, 0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    
     plataformas.forEach(p => ctx.drawImage(plataforma, p.x, p.y, p.width, 20));
     ctx.drawImage(personaje, x, y, 50, 50);
     ctx.drawImage(princesa, princesaX, princesaY, 50, 50);
     ctx.drawImage(llave, llaveX, llaveY, 30, 30);
     ctx.drawImage(enemigo, enemigoX, enemigoY, 50, 50);
+    
+    // Dibujar jaula
+    jaula.forEach(j => ctx.drawImage(jaulaImg, j.x, j.y, j.width, j.height));
+    
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
     ctx.fillText(`Vidas: ${vidas}`, 10, 20);
@@ -100,60 +130,46 @@ function actualizar() {
         }
     });
 
+    // Movimiento del enemigo en zigzag
+    enemigoX += enemigoVelocidadX * enemigoDireccion;
+    if (enemigoX <= 500 || enemigoX >= 700) {
+        enemigoDireccion *= -1;
+    }
+
     // Limites del canvas
     if (x < 0) x = 0;
     if (x + 50 > canvas.width) x = canvas.width - 50;
     if (y > canvas.height) {
         vidas--;
-        x = 100; y = 500; velocidadX = 0; velocidadY = 0;
+        reiniciarJuego();
     }
 
     // Colisión con enemigo
     if (x + 50 > enemigoX && x - 50 < enemigoX && y + 50 > enemigoY && y - 50 < enemigoY) {
         vidas--;
-        x = 100; y = 500;
+        reiniciarJuego();
         reproducirSonido();
     }
+    
     // Recoger llave
     if (x + 50 > llaveX && x - 50 < llaveX && y + 50 > llaveY && y - 50 < llaveY) {
         llaveX = -100; llaveY = -100;
         reproducirSonido();
     }
+    
     // Llegar a la princesa
-    if (x + 50 > princesaX && x - 50 < princesaX && y + 50 > princesaY && y - 50 < princesaY) {
+    if (x + 50 > princesaX && x - 50 < princesaX && y + 50 > princesaY && y - 50 < princesaY && llaveX === -100) {
         nivelActual++;
-        x = 100; y = 500;
+        reiniciarJuego();
         reproducirSonido();
     }
+    
     if (vidas === 0) {
         alert('Game Over!');
-        location.reload();
+        reiniciarJuego();
     }
     requestAnimationFrame(actualizar);
 }
-
-// ============================
-// EVENTOS DEL TECLADO
-// ============================
-let teclas = {};
-document.addEventListener('keydown', function(event) {
-    teclas[event.key] = true;
-});
-document.addEventListener('keyup', function(event) {
-    teclas[event.key] = false;
-});
-
-function manejarMovimiento() {
-    if (teclas['ArrowLeft']) velocidadX = -5;
-    else if (teclas['ArrowRight']) velocidadX = 5;
-    if (teclas['ArrowUp'] && enSuelo) {
-        velocidadY = -12;
-        enSuelo = false;
-        reproducirSonido();
-    }
-    requestAnimationFrame(manejarMovimiento);
-}
-manejarMovimiento();
 
 // ============================
 // MENÚ PRINCIPAL
@@ -161,24 +177,7 @@ manejarMovimiento();
 startButton.addEventListener('click', function() {
     menu.style.display = "none";
     canvas.style.display = "block";
-    fondo.onload = () => {
-        actualizar();
-        dibujar();
-document.addEventListener("DOMContentLoaded", function() {
-    const menu = document.getElementById('menu');
-    const startButton = document.getElementById('startButton');
-    
-    if (startButton) {
-        startButton.addEventListener('click', function() {
-            menu.style.display = "none";
-            canvas.style.display = "block";
-            actualizar();
-            dibujar();
-        });
-    } else {
-        console.error("Error: No se encontró el botón de inicio en el DOM.");
-    }
-});
-
-    };
+    reiniciarJuego();
+    actualizar();
+    dibujar();
 });
